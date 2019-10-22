@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#C44C00</color>
+    <color name="colorPrimaryDark">#FF5722</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <!--Loading page colors-->
+    <color name="lightGreen">#46AA09</color>
+    <color name="darkGreen">#408500</color>
+
+    <color name="lightOrange">#FF740B</color>
+    <color name="darkOrange">#C44C00</color>
+
+    <!--Visitor-->
+    <color name="visitorPrimary">#FFFFFF</color>
+</resources>

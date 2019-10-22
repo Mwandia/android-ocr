@@ -1,0 +1,22 @@
+<resources>
+    <!--CAMERA LAYOUT-->
+    <string name="pic">take picture</string>
+    <string name="instruction">Place ID within Rectangle</string>
+    <string name="proceed">OK</string>
+
+    <!--DETAILS LAYOUT-->
+    <string name="number">id number</string>
+    <string name="name">name</string>
+    <string name="doe">entry date</string>
+    <string name="toe">entry time</string>
+    <string name="sex">sex</string>
+    <string name="button">more details</string>
+    <string name="profile">profile</string>
+
+    <!--CURRENT VISITOR LIST-->
+    <string name="tab_text_1">CURRENT</string>
+    <string name="tab_text_2">PREVIOUS</string>
+    <string name="title_activity_visitor">VISITORS</string>
+    <string name="profile_photo">profile_photo</string>
+
+</resources>
