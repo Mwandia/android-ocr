@@ -135,7 +135,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         mat1 = inputFrame.rgba();
         Mat gray = inputFrame.gray();
         drawOverlay();
-        checkFrame(mat1,gray);
+        mat1 = checkFrame(mat1,gray);
         return mat1;
     }
 
@@ -179,7 +179,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         Core.addWeighted(output,0.3, mat1,0.7,0,mat1);
     }
 
-    protected void checkFrame(Mat mat, Mat gray){
+    protected Mat checkFrame(Mat mat, Mat gray){
         //drawOverlay();
 
         // Init matrices of images and list of contours
@@ -198,6 +198,32 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // Draw rectangle overlay
 
         Imgproc.rectangle(mat,bound.tl(),bound.br(),new Scalar(50,0,0),10);
+	// Constants
+        int width_l_thresh = 2200;
+        int height_l_thresh = 1400;
+        int width_u_thresh = 2300;
+        int height_u_thresh = 1500;
+        int corner_thresh = 50;
 
+        // Look through contours for ID contour and draw it
+        for(int i = 0; i < contours.size(); i++) {
+            Rect box = Imgproc.boundingRect(contours.get(i));
+
+            // if ID box is close to overlay size
+            if (box.width > width_l_thresh && box.height > height_l_thresh && box.width < width_u_thresh && box.height < height_u_thresh) {
+                Imgproc.drawContours(mat1, contours, i, new Scalar(200, 200, 0), 5);
+                // if ID box corner and overlay corner match allow to take picture
+                if (box.x < bound.x + corner_thresh && box.x > bound.x - corner_thresh && box.y < bound.y + corner_thresh && box.y > bound.y - corner_thresh) {
+                    Imgproc.rectangle(mat1, bound.tl(), bound.br(), new Scalar(0, 255, 0), 5);
+                    button.setEnabled(true);
+                    cameraInstruct.setText(getString(R.string.proceed));
+                    break;
+                }
+            } else {
+                button.setEnabled(true);
+                cameraInstruct.setText(getString(R.string.instruction));
+            }
+        }
+	return mat1;
     }
 }
