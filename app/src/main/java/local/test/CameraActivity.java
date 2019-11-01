@@ -1,12 +1,17 @@
 package local.test;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.SparseArray;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
@@ -15,43 +20,25 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.googlecode.tesseract.android.TessBaseAPI;
+import com.google.android.gms.vision.CameraSource;
+import com.google.android.gms.vision.Detector;
+import com.google.android.gms.vision.text.TextBlock;
+import com.google.android.gms.vision.text.TextRecognizer;
 
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.JavaCamera2View;
-import org.opencv.android.JavaCameraView;
-import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 
-public class CameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class CameraActivity extends AppCompatActivity {
 
-    private static final String  TAG                   = "CameraActivity";
-    private static final String  DATA_PATH             = Environment.getExternalStorageDirectory().toString()+"/Tess";
-    private static final int     RECT_WIDTH            = 2271;
-    private static final int     RECT_HEIGHT           = 1465;
-    private static final int     REQUEST_IMAGE_CAPTURE = 1;
+    private static final String  TAG = "CameraActivity";
+    private static final String  DATA_PATH = Environment.getExternalStorageDirectory().toString()+"/Tess";
+    private static final int     REQUEST_PERMISSION = 1024;
 
-    private BaseLoaderCallback   baseLoaderCallback;
-    private JavaCameraView       cameraView;
-    private Mat                  mat1;
-    private Rect                 bound;
-    private Button               button;
-    private TextView             cameraInstruct;
-    //private TessBaseAPI        tessBaseAPI;
+    private CameraSource         mCameraSource;
+    private SurfaceView          mCameraView;
+    private TextView             mTextView;
+    private Button               mButton;
+    private TextView             mCameraInstruct;
     private Uri                  outputDir;
 
     @Override
@@ -62,39 +49,22 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_camera);
 
-        if(OpenCVLoader.initDebug()){
-            Toast.makeText(getApplicationContext(),"OpenCV loaded",Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getApplicationContext(),"OpenCV could not be loaded",Toast.LENGTH_SHORT).show();
-        }
+        mCameraView = findViewById(R.id.cameraView);
 
-        cameraView = findViewById(R.id.cameraView);
-        cameraView.setVisibility(SurfaceView.VISIBLE);
-        cameraView.setCvCameraViewListener(CameraActivity.this);
-
-        baseLoaderCallback = new BaseLoaderCallback(this) {
-            @Override
-            public void onManagerConnected(int status) {
-                if(status == BaseLoaderCallback.SUCCESS) {
-                    cameraView.enableView();
-                } else {
-                    super.onManagerConnected(status);
-                }
-            }
-        };
-
-        button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener(){
+        mButton = findViewById(R.id.button);
+        mButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 takePicture();
             }
         });
-        button.setEnabled(true);
+        mButton.setEnabled(true);
 
-        cameraInstruct = findViewById(R.id.cameraInstruct);
-        cameraInstruct.setAllCaps(true);
-        cameraInstruct.setText(getString(R.string.instruction));
+        mCameraInstruct = findViewById(R.id.cameraInstruct);
+        mCameraInstruct.setAllCaps(true);
+        mCameraInstruct.setText(getString(R.string.instruction));
+
+        startCameraSource();
     }
 
     private void takePicture(){
@@ -117,113 +87,70 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         }
     }
 
-    @Override
-    public void onCameraViewStarted(int width, int height) {
-        mat1 = new Mat(width,height,CvType.CV_8UC4);
-        int x = (width-RECT_WIDTH)/2;
-        int y = (height-RECT_HEIGHT)/2;
-        bound = new Rect(x,y,RECT_WIDTH,RECT_HEIGHT);
-    }
+    public void startCameraSource(){
+        final TextRecognizer textRec = new TextRecognizer.Builder(getApplicationContext()).build();
+        if(!textRec.isOperational()){
+            Toast.makeText(this, "Detector dependencies not loaded yet",Toast.LENGTH_SHORT).show();
+        } else {
 
-    @Override
-    public void onCameraViewStopped() {
-        mat1.release();
-    }
+            //Init camera source to high res and set auto-focus
+            mCameraSource = new CameraSource.Builder(getApplicationContext(), textRec)
+                    .setFacing(CameraSource.CAMERA_FACING_BACK)
+                    .setAutoFocusEnabled(true)
+                    .build();
 
-    @Override
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        mat1 = inputFrame.rgba();
-        Mat gray = inputFrame.gray();
-        drawOverlay();
-        mat1 = checkFrame(mat1,gray);
-        return mat1;
-    }
+            mCameraView.getHolder().addCallback(new SurfaceHolder.Callback() {
+                @Override
+                public void surfaceCreated(SurfaceHolder holder) {
+                    try{
+                        if(ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(CameraActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_PERMISSION);
+                        } else {
+                            mCameraSource.start(mCameraView.getHolder());
+                        }
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        baseLoaderCallback.onManagerConnected(baseLoaderCallback.SUCCESS);
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        if(cameraView!=null) cameraView.disableView();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(cameraView!=null) cameraView.disableView();
-    }
-
-    protected void drawOverlay(){
-        // blue overlay and empty output
-        Mat overlay = new Mat();
-        Mat output = new Mat();
-
-        mat1.copyTo(overlay);
-        mat1.copyTo(output);
-
-        Imgproc.rectangle(overlay,new Point(0,0),new Point(overlay.width(),overlay.height()),new Scalar(19,42,64),-1);
-
-        // mask
-        Mat mask = Mat.zeros(mat1.size(),CvType.CV_8UC4);
-        Imgproc.rectangle(mask,bound.tl(),bound.br(),new Scalar(255,255,255),-1);
-        Core.bitwise_not(mask,mask);
-
-        // apply mask to output from blue overlay
-        overlay.copyTo(output,mask);
-
-        // place overlay on camera view
-        Core.addWeighted(output,0.3, mat1,0.7,0,mat1);
-    }
-
-    protected Mat checkFrame(Mat mat, Mat gray){
-        //drawOverlay();
-
-        // Init matrices of images and list of contours
-        List<MatOfPoint> contours = new ArrayList<>();
-        Mat bw = new Mat(gray.size(),CvType.CV_8UC1);
-        Mat canny = new Mat();
-        Mat hierarchy = new Mat();
-        Mat kernel = Mat.ones(new Size(3,4),CvType.CV_8UC1);
-
-        // Threshold, erode, detect edges and find contours
-        Imgproc.threshold(gray, bw, 160, 255, Imgproc.THRESH_BINARY_INV);
-        Imgproc.erode(bw, bw, kernel);
-        Imgproc.Canny(bw, canny, 50, 254);
-        Imgproc.findContours(bw, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-
-        // Draw rectangle overlay
-
-        Imgproc.rectangle(mat,bound.tl(),bound.br(),new Scalar(50,0,0),10);
-	// Constants
-        int width_l_thresh = 2200;
-        int height_l_thresh = 1400;
-        int width_u_thresh = 2300;
-        int height_u_thresh = 1500;
-        int corner_thresh = 50;
-
-        // Look through contours for ID contour and draw it
-        for(int i = 0; i < contours.size(); i++) {
-            Rect box = Imgproc.boundingRect(contours.get(i));
-
-            // if ID box is close to overlay size
-            if (box.width > width_l_thresh && box.height > height_l_thresh && box.width < width_u_thresh && box.height < height_u_thresh) {
-                Imgproc.drawContours(mat1, contours, i, new Scalar(200, 200, 0), 5);
-                // if ID box corner and overlay corner match allow to take picture
-                if (box.x < bound.x + corner_thresh && box.x > bound.x - corner_thresh && box.y < bound.y + corner_thresh && box.y > bound.y - corner_thresh) {
-                    Imgproc.rectangle(mat1, bound.tl(), bound.br(), new Scalar(0, 255, 0), 5);
-                    button.setEnabled(true);
-                    cameraInstruct.setText(getString(R.string.proceed));
-                    break;
+                    } catch (IOException e){
+                        Toast.makeText(CameraActivity.this,"Surface not working", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            } else {
-                button.setEnabled(true);
-                cameraInstruct.setText(getString(R.string.instruction));
-            }
+
+                @Override
+                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+                }
+
+                @Override
+                public void surfaceDestroyed(SurfaceHolder holder) {
+                    mCameraSource.stop();
+                }
+            });
+
+            // Set TextRecognizer processor
+            textRec.setProcessor(new Detector.Processor<TextBlock>() {
+                @Override
+                public void release() {
+
+                }
+
+                @Override
+                public void receiveDetections(Detector.Detections<TextBlock> detections) {
+                    final SparseArray<TextBlock> items = detections.getDetectedItems();
+                    if(items.size() != 0){
+                        mTextView.post(new Runnable(){
+                            @Override
+                            public void run(){
+                                StringBuilder stringBuilder = new StringBuilder();
+                                for(int i=0; i<items.size(); i++){
+                                    TextBlock item = items.valueAt(i);
+                                    stringBuilder.append(item.getValue());
+                                    stringBuilder.append("\n");
+                                }
+                                mTextView.setText(stringBuilder.toString());
+                            }
+                        });
+                    }
+                }
+            });
         }
-	return mat1;
     }
 }
