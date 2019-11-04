@@ -1,7 +1,7 @@
 <resources>
     <!--CAMERA LAYOUT-->
     <string name="pic">take picture</string>
-    <string name="instruction">Place ID within Rectangle</string>
+    <string name="instruction">Place ID at center of screen</string>
     <string name="proceed">OK</string>
 
     <!--DETAILS LAYOUT-->

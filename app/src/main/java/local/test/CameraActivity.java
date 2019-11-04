@@ -1,11 +1,14 @@
 package local.test;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,25 +24,35 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.Detector;
+import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class CameraActivity extends AppCompatActivity {
 
-    private static final String  TAG = "CameraActivity";
-    private static final String  DATA_PATH = Environment.getExternalStorageDirectory().toString()+"/Tess";
-    private static final int     REQUEST_PERMISSION = 1024;
+    public static final String  TAG = "CameraActivity";
+    public static final String  DATA_PATH = Environment.getExternalStorageDirectory().toString();
+    public static final int     REQUEST_PERMISSION = 1024;
+    public static final int     REQUEST_IMAGE_CAPTURE = 1;
+    public static final int     RESULT_LOAD_IMG = 1;
 
-    private CameraSource         mCameraSource;
-    private SurfaceView          mCameraView;
-    private TextView             mTextView;
-    private Button               mButton;
-    private TextView             mCameraInstruct;
-    private Uri                  outputDir;
+    private TextRecognizer      textRec;
+
+    private CameraSource        mCameraSource;
+    private SurfaceView         mCameraView;
+    private TextView            mTextView;
+    private Button              mButton;
+    private TextView            mCameraInstruct;
+    private Uri                 outputDir;
+    private Bitmap              readImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +68,10 @@ public class CameraActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                takePicture();
+                Frame image = takePicture();
+                extractDetails(image);
+                Intent intent = new Intent(CameraActivity.this, VisitorsActivity.class);
+                startActivity(intent);
             }
         });
         mButton.setEnabled(true);
@@ -65,29 +81,46 @@ public class CameraActivity extends AppCompatActivity {
         mCameraInstruct.setText(getString(R.string.instruction));
 
         startCameraSource();
+
     }
 
-    private void takePicture(){
-        try{
-/*            String imagePath = DATA_PATH + "/imgs";
-            File dir = new File(imagePath);
-            if(!dir.exists()) dir.mkdir();
-            String imageFilePath = imagePath+"/ocr.jpg";
-            outputDir = Uri.fromFile((new File(imageFilePath)));
-            Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,outputDir);
+    private Frame takePicture(){
+        Frame outputFrame = null;
 
-            if(pictureIntent.resolveActivity(getPackageManager()) != null)
-                startActivityForResult(pictureIntent, REQUEST_IMAGE_CAPTURE);
-*/
-            Intent process = new Intent(this,LoadingActivity.class);
-            startActivity(process);
+        try{
+
+            String imagePath = DATA_PATH + "/id";
+            File dir = new File(imagePath);
+
+            if(!dir.exists()) dir.mkdir();
+
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+            LocalDateTime now = LocalDateTime.now();
+
+            String imageFilePath = imagePath+"/"+ dateTimeFormatter.format(now);
+
+            outputDir = Uri.fromFile((new File(imageFilePath)));
+
+            //Intent pictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            //pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,outputDir);
+
+            mCameraSource.takePicture(null,null);
+
+            //if(pictureIntent.resolveActivity(getPackageManager()) != null)
+            //    startActivityForResult(pictureIntent, REQUEST_IMAGE_CAPTURE);
+
+            Bitmap image = MediaStore.Images.Media.getBitmap(getContentResolver(),outputDir);
+
+            outputFrame = new Frame.Builder().setBitmap(image).build();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return outputFrame;
     }
 
-    public void startCameraSource(){
+    private void startCameraSource(){
         final TextRecognizer textRec = new TextRecognizer.Builder(getApplicationContext()).build();
         if(!textRec.isOperational()){
             Toast.makeText(this, "Detector dependencies not loaded yet",Toast.LENGTH_SHORT).show();
@@ -96,6 +129,7 @@ public class CameraActivity extends AppCompatActivity {
             //Init camera source to high res and set auto-focus
             mCameraSource = new CameraSource.Builder(getApplicationContext(), textRec)
                     .setFacing(CameraSource.CAMERA_FACING_BACK)
+                    .setRequestedPreviewSize(1440,2560)
                     .setAutoFocusEnabled(true)
                     .build();
 
@@ -124,33 +158,34 @@ public class CameraActivity extends AppCompatActivity {
                     mCameraSource.stop();
                 }
             });
+        }
+    }
 
-            // Set TextRecognizer processor
-            textRec.setProcessor(new Detector.Processor<TextBlock>() {
-                @Override
-                public void release() {
-
+    /**
+     * After taking picture, process picture and extract relevant text.
+     * @param image
+     */
+    private void extractDetails(Frame image){
+        final SparseArray<TextBlock> items = textRec.detect(image);
+        if(items.size() != 0){
+            StringBuilder stringBuilder = new StringBuilder();
+            int j = 0;
+            for(int i=0; i<items.size(); i++) {
+                TextBlock item = items.valueAt(i);
+                if(item.equals("FULL NAMES") || item.equals("DATE OF BIRTH") || item.equals("SEX") || item.equals("ID NUMBER")){
+                    stringBuilder.append(item.getValue());
+                    stringBuilder.append("\n");
+                    j = i+1;
                 }
-
-                @Override
-                public void receiveDetections(Detector.Detections<TextBlock> detections) {
-                    final SparseArray<TextBlock> items = detections.getDetectedItems();
-                    if(items.size() != 0){
-                        mTextView.post(new Runnable(){
-                            @Override
-                            public void run(){
-                                StringBuilder stringBuilder = new StringBuilder();
-                                for(int i=0; i<items.size(); i++){
-                                    TextBlock item = items.valueAt(i);
-                                    stringBuilder.append(item.getValue());
-                                    stringBuilder.append("\n");
-                                }
-                                mTextView.setText(stringBuilder.toString());
-                            }
-                        });
-                    }
+                if(j==i){
+                    stringBuilder.append(item.getValue());
+                    stringBuilder.append("\n");
                 }
-            });
+            }
+            // set data in room db
+            mTextView.setText(stringBuilder.toString());
         }
     }
 }
+
+
