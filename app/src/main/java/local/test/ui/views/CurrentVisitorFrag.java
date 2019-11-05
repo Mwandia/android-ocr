@@ -1,4 +1,4 @@
-package local.test.ui.main;
+package local.test.ui.views;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,11 +13,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import local.test.R;
-import local.test.models.VisitorCard;
+import local.test.models.Visitor;
 
-public class Frag1 extends Fragment{
+public class CurrentVisitorFrag extends Fragment{
 
-    private static final String TAG = "Frag1";
+    private static final String TAG = "CurrentVisitorFrag";
     
     private RecyclerView                recyclerView;
     private Adapter                     adapter;
@@ -28,14 +28,13 @@ public class Frag1 extends Fragment{
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.frag1_layout,container,false);
 
-        final ArrayList<VisitorCard> visitors = new ArrayList<>();
-        visitors.add(new VisitorCard(R.drawable.ic_android,"Jeffrey Eric Mwandia Ndumbu","33917869","15:36"));
+        final ArrayList<Visitor> visitors = new ArrayList<>();
         createRecyclerView(rootView,visitors);
 
         return rootView;
     }
 
-    private void createRecyclerView(View rootView, final ArrayList<VisitorCard> visitors){
+    private void createRecyclerView(View rootView, final ArrayList<Visitor> visitors){
 
         recyclerView = rootView.findViewById(R.id.recycle1);
         recyclerView.setHasFixedSize(true);

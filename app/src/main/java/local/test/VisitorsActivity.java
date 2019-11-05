@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
-import local.test.ui.main.SectionsPagerAdapter;
+import local.test.ui.views.SectionsPagerAdapter;
 import local.test.viewmodels.VisitorViewModel;
 
 public class VisitorsActivity extends AppCompatActivity {
@@ -29,8 +29,10 @@ public class VisitorsActivity extends AppCompatActivity {
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(sectionsPagerAdapter);
+
         final TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
+
         final FloatingActionButton toCamera = findViewById(R.id.fab);
 
         toCamera.setOnClickListener(new View.OnClickListener() {

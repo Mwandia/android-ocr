@@ -7,9 +7,9 @@ import java.util.List;
 
 import androidx.lifecycle.LiveData;
 
-import local.test.room.Visitor;
-import local.test.room.VisitorDao;
-import local.test.room.VisitorDatabase;
+import local.test.models.Visitor;
+import local.test.models.VisitorDao;
+import local.test.models.VisitorDatabase;
 
 public class VisitorRepository {
 

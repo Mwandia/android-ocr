@@ -1,4 +1,4 @@
-package local.test.ui.main;
+package local.test.ui.views;
 
 import android.content.Context;
 
@@ -32,9 +32,9 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         Fragment frag;
         if(position == 0){
-            frag = new Frag1();
+            frag = new CurrentVisitorFrag();
         } else {
-            frag = new Frag2();
+            frag = new PreviousVisitorFrag();
         }
         return frag;
     }

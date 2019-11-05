@@ -1,10 +1,8 @@
-package local.test.room;
+package local.test.models;
 
 import android.icu.text.SimpleDateFormat;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Locale;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -14,7 +12,7 @@ public class Visitor {
 
     private String birthdate;
     private String entry;
-    private String full_name;
+    private String name;
 
     @PrimaryKey
     private int id;
@@ -24,12 +22,12 @@ public class Visitor {
 
     public Visitor(int id, String full_name, String birthdate, String sex, String image){
         this.birthdate = birthdate;
-        this.full_name = full_name;
+        this.name = name;
         this.id = id;
         this.image = image;
         this.sex = sex;
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy");
         this.entry = sdf.format(LocalDateTime.now());
     }
 
@@ -37,8 +35,8 @@ public class Visitor {
         return birthdate;
     }
 
-    public String getFull_name() {
-        return full_name;
+    public String getName() {
+        return name;
     }
 
     public int getId() {

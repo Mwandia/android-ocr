@@ -1,4 +1,4 @@
-package local.test.room;
+package local.test.models;
 
 import java.util.List;
 

@@ -7,7 +7,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import local.test.room.Visitor;
+import local.test.models.Visitor;
 
 public class VisitorViewModel extends AndroidViewModel {
     private VisitorRepository repository;

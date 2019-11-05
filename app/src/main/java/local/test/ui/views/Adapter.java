@@ -1,4 +1,4 @@
-package local.test.ui.main;
+package local.test.ui.views;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,18 +7,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import local.test.R;
-import local.test.models.VisitorCard;
+import local.test.models.Visitor;
 
-public class Adapter extends RecyclerView.Adapter<Adapter.AdapterViewHolder> {
+public class Adapter extends RecyclerView.Adapter<Adapter.VisitorHolder> {
 
     private static final String TAG = "Adapter";
-    
-    private ArrayList<VisitorCard> visitors;
+
+    private List<Visitor> mVisitors = new ArrayList<>();
     private OnItemClickListener mlistener;
 
     public interface OnItemClickListener{
@@ -29,12 +30,12 @@ public class Adapter extends RecyclerView.Adapter<Adapter.AdapterViewHolder> {
         mlistener = listener;
     }
 
-    public static class AdapterViewHolder extends RecyclerView.ViewHolder {
+    public static class VisitorHolder extends RecyclerView.ViewHolder {
         public ImageView image;
         public TextView id;
         public TextView name;
 
-        public AdapterViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
+        public VisitorHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
             image = itemView.findViewById(R.id.thumb);
             name = itemView.findViewById(R.id.supertext);
@@ -56,30 +57,35 @@ public class Adapter extends RecyclerView.Adapter<Adapter.AdapterViewHolder> {
         }
     }
 
-    public Adapter(ArrayList<VisitorCard> visitors){
-        this.visitors = visitors;
+    public Adapter(ArrayList<Visitor> visitors){
+        this.mVisitors = visitors;
     }
 
     @NonNull
     @Override
-    public AdapterViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public VisitorHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cards,viewGroup,false);
-        AdapterViewHolder avh = new AdapterViewHolder(v,mlistener);
-        return avh;
+        VisitorHolder vh = new VisitorHolder(v,mlistener);
+        return vh;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdapterViewHolder adapterViewHolder, int i) {
-        VisitorCard item = visitors.get(i);
+    public void onBindViewHolder(@NonNull VisitorHolder visitorHolder, int i) {
+        Visitor item = mVisitors.get(i);
 
-        adapterViewHolder.image.setImageResource(item.getImage());
-        adapterViewHolder.id.setText(item.getId());
-        adapterViewHolder.name.setText(item.getName());
+        visitorHolder.id.setText(item.getId());
+        visitorHolder.name.setText(item.getName());
     }
 
     @Override
     public int getItemCount() {
-        return visitors.size();
+        return mVisitors.size();
     }
+
+    public void setVisitors(List<Visitor> visitors){
+        this.mVisitors = visitors;
+        notifyDataSetChanged();
+    }
+
 
 }

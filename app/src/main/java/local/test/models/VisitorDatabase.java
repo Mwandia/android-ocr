@@ -1,7 +1,6 @@
-package local.test.room;
+package local.test.models;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
