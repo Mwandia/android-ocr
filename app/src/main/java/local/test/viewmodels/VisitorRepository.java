@@ -14,12 +14,14 @@ import local.test.models.VisitorDatabase;
 public class VisitorRepository {
 
     private VisitorDao visitorDao;
-    private LiveData<List<Visitor>> allVisitors;
+    private LiveData<List<Visitor>> currVisitors;
+    private LiveData<List<Visitor>> prevVisitors;
 
     public VisitorRepository(Application application){
         VisitorDatabase database = VisitorDatabase.getInstance(application);
         visitorDao = database.visitorDao();
-        allVisitors = visitorDao.getAllVisitors();
+        prevVisitors = visitorDao.getPrevVisitors();
+        currVisitors = visitorDao.getCurrVisitors();
     }
 
     public void insert(Visitor visitor){
@@ -34,8 +36,12 @@ public class VisitorRepository {
         new DeleteVisitorAsyncTask(visitorDao).execute(visitor);
     }
 
-    public LiveData<List<Visitor>> getAllVisitors() {
-        return allVisitors;
+    public LiveData<List<Visitor>> getCurrVisitors() {
+        return currVisitors;
+    }
+
+    public LiveData<List<Visitor>> getPrevVisitors() {
+        return prevVisitors;
     }
 
     private static class InsertVisitorAsyncTask extends AsyncTask<Visitor,Void,Void>{

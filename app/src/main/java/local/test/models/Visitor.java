@@ -12,6 +12,7 @@ public class Visitor {
 
     private String birthdate;
     private String entry;
+    private String exit;
     private String name;
 
     @PrimaryKey
@@ -20,7 +21,7 @@ public class Visitor {
     private String image; //path to image
     private String sex;
 
-    public Visitor(int id, String full_name, String birthdate, String sex, String image){
+    public Visitor(int id, String name, String birthdate, String sex, String image){
         this.birthdate = birthdate;
         this.name = name;
         this.id = id;
@@ -29,6 +30,7 @@ public class Visitor {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy");
         this.entry = sdf.format(LocalDateTime.now());
+        this.exit = "";
     }
 
     public String getBirthdate() {
@@ -49,6 +51,14 @@ public class Visitor {
 
     public String getEntry() {
         return entry;
+    }
+
+    public String getExit() {
+        return exit;
+    }
+
+    public void setExit(String time){
+        this.exit = time;
     }
 
     public String getSex() {

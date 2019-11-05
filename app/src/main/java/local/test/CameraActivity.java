@@ -48,7 +48,6 @@ public class CameraActivity extends AppCompatActivity {
 
     private CameraSource        mCameraSource;
     private SurfaceView         mCameraView;
-    private TextView            mTextView;
     private Button              mButton;
     private TextView            mCameraInstruct;
     private Uri                 outputDir;
@@ -183,7 +182,7 @@ public class CameraActivity extends AppCompatActivity {
                 }
             }
             // set data in room db
-            mTextView.setText(stringBuilder.toString());
+
         }
     }
 }

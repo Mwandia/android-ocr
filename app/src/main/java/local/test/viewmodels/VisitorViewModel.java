@@ -11,12 +11,14 @@ import local.test.models.Visitor;
 
 public class VisitorViewModel extends AndroidViewModel {
     private VisitorRepository repository;
-    private LiveData<List<Visitor>> allVisitors;
+    private LiveData<List<Visitor>> prevVisitors;
+    private LiveData<List<Visitor>> currVisitors;
 
     public VisitorViewModel(@NonNull Application application) {
         super(application);
         repository = new VisitorRepository(application);
-        allVisitors = repository.getAllVisitors();
+        prevVisitors = repository.getPrevVisitors();
+        currVisitors = repository.getCurrVisitors();
     }
 
     public void insert(Visitor visitor){
@@ -31,8 +33,11 @@ public class VisitorViewModel extends AndroidViewModel {
         repository.delete(visitor);
     }
 
+    public LiveData<List<Visitor>> getCurrVisitors(){
+        return currVisitors;
+    }
 
-    public LiveData<List<Visitor>> getAllVisitors(){
-        return allVisitors;
+    public LiveData<List<Visitor>> getPrevVisitors(){
+        return prevVisitors;
     }
 }

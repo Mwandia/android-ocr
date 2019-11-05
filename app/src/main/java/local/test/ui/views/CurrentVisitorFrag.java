@@ -6,22 +6,27 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import local.test.R;
 import local.test.models.Visitor;
+import local.test.viewmodels.VisitorViewModel;
 
 public class CurrentVisitorFrag extends Fragment{
 
-    private static final String TAG = "CurrentVisitorFrag";
+    private static final String         TAG = "CurrentVisitorFrag";
     
     private RecyclerView                recyclerView;
     private Adapter                     adapter;
     private RecyclerView.LayoutManager  layoutManager;
+    private VisitorViewModel            visitorViewModel;
 
     @Nullable
     @Override
@@ -41,14 +46,22 @@ public class CurrentVisitorFrag extends Fragment{
         layoutManager = new LinearLayoutManager(rootView.getContext());
 
         adapter = new Adapter(visitors);
-
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-
         adapter.setOnItemClickListener(new Adapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 visitors.get(position);
+            }
+        });
+
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+
+        visitorViewModel = ViewModelProviders.of(this).get(VisitorViewModel.class);
+        visitorViewModel.getCurrVisitors().observe(this, new Observer<List<Visitor>>(){
+            @Override
+            public void onChanged(List<Visitor> visitors){
+                //update RecyclerView
+                adapter.setVisitors(visitors);
             }
         });
     }

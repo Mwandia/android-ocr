@@ -32,6 +32,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".CameraActivity"
+                  android:parentActivityName=".VisitorsActivity"
                   android:screenOrientation="landscape"/>
 
         <meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="ocr"/>

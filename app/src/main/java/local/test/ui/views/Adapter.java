@@ -20,14 +20,14 @@ public class Adapter extends RecyclerView.Adapter<Adapter.VisitorHolder> {
     private static final String TAG = "Adapter";
 
     private List<Visitor> mVisitors = new ArrayList<>();
-    private OnItemClickListener mlistener;
+    private OnItemClickListener mListener;
 
     public interface OnItemClickListener{
         void onItemClick(int position);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener){
-        mlistener = listener;
+        mListener = listener;
     }
 
     public static class VisitorHolder extends RecyclerView.ViewHolder {
@@ -65,7 +65,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.VisitorHolder> {
     @Override
     public VisitorHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.cards,viewGroup,false);
-        VisitorHolder vh = new VisitorHolder(v,mlistener);
+        VisitorHolder vh = new VisitorHolder(v,mListener);
         return vh;
     }
 

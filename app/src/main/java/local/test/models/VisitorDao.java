@@ -23,6 +23,9 @@ public interface VisitorDao {
     @Query("DELETE * FROM visitors")
     void deleteAllVisitors();
 
-    @Query("SELECT * FROM visitors ORDER_BY entry DESC")
-    LiveData<List<Visitor>> getAllVisitors();
+    @Query("SELECT * FROM (SELECT * FROM visitors WHERE exit='') ORDER BY entry DESC")
+    LiveData<List<Visitor>> getPrevVisitors();
+
+    @Query("SELECT * FROM (SELECT * FROM visitors WHERE exit!='') ORDER BY exit DESC")
+    LiveData<List<Visitor>> getCurrVisitors();
 }

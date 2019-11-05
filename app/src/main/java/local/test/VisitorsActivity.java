@@ -13,13 +13,11 @@ import android.view.View;
 import android.widget.Toast;
 
 import local.test.ui.views.SectionsPagerAdapter;
-import local.test.viewmodels.VisitorViewModel;
 
 public class VisitorsActivity extends AppCompatActivity {
 
     private static final String TAG = "VisitorsActivity";
     private long                backPressedTime;
-    private VisitorViewModel    visitorViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
