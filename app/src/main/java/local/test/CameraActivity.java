@@ -186,13 +186,13 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void saveID(){
-        int id = 0;
+        String id = "";
         String dob = "";
         String sex = "";
         String name = "";
-        String image = "";
 
-        Visitor visitor = new Visitor(id,name,dob,sex,image);
+        Visitor visitor = new Visitor(id,name,dob,sex);
+        Toast.makeText(this,"Added Visitor",)
 
     }
 }
