@@ -192,7 +192,6 @@ public class CameraActivity extends AppCompatActivity {
         String name = "";
 
         Visitor visitor = new Visitor(id,name,dob,sex);
-        Toast.makeText(this,"Added Visitor",)
 
     }
 }
