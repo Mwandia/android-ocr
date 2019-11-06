@@ -1,9 +1,13 @@
 package local.test.ui.views;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +31,7 @@ public class CurrentVisitorFrag extends Fragment{
     private Adapter                     adapter;
     private RecyclerView.LayoutManager  layoutManager;
     private VisitorViewModel            visitorViewModel;
+    private FloatingActionButton        mButton;
 
     @Nullable
     @Override
@@ -64,6 +69,8 @@ public class CurrentVisitorFrag extends Fragment{
                 adapter.setVisitors(visitors);
             }
         });
+
+
     }
 
 

@@ -3,6 +3,7 @@ package local.test;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import local.test.models.Visitor;
 
 import android.Manifest;
 import android.content.Intent;
@@ -29,9 +30,7 @@ import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -40,9 +39,15 @@ public class CameraActivity extends AppCompatActivity {
 
     public static final String  TAG = "CameraActivity";
     public static final String  DATA_PATH = Environment.getExternalStorageDirectory().toString();
-    public static final int     REQUEST_PERMISSION = 1024;
-    public static final int     REQUEST_IMAGE_CAPTURE = 1;
-    public static final int     RESULT_LOAD_IMG = 1;
+    public static final int     REQUEST_PERMISSION = 1;
+    public static final int     IMAGE_CAPTURE_REQUEST = 1;
+    public static final int     LOAD_IMG_REQUEST = 1;
+    public static final int     ADD_VISITOR_REQUEST = 1;
+
+    public static final String  NEW_ID = "local.test.NEW_ID";
+    public static final String  NEW_NAME = "local.test.NEW_NAME";
+    public static final String  NEW_SEX = "local.test.NEW_SEX";
+    public static final String  NEW_DOB = "local.test.NEW_DOB";
 
     private TextRecognizer      textRec;
 
@@ -68,7 +73,7 @@ public class CameraActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 Frame image = takePicture();
-                extractDetails(image);
+                String words = extractWords(image);
                 Intent intent = new Intent(CameraActivity.this, VisitorsActivity.class);
                 startActivity(intent);
             }
@@ -163,27 +168,32 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * After taking picture, process picture and extract relevant text.
      * @param image
+     * @return String of words
      */
-    private void extractDetails(Frame image){
+    private String extractWords(Frame image){
+        String words = "";
         final SparseArray<TextBlock> items = textRec.detect(image);
         if(items.size() != 0){
             StringBuilder stringBuilder = new StringBuilder();
-            int j = 0;
             for(int i=0; i<items.size(); i++) {
                 TextBlock item = items.valueAt(i);
-                if(item.equals("FULL NAMES") || item.equals("DATE OF BIRTH") || item.equals("SEX") || item.equals("ID NUMBER")){
-                    stringBuilder.append(item.getValue());
-                    stringBuilder.append("\n");
-                    j = i+1;
-                }
-                if(j==i){
-                    stringBuilder.append(item.getValue());
-                    stringBuilder.append("\n");
-                }
+                stringBuilder.append(item.getValue());
+                stringBuilder.append("\n");
             }
-            // set data in room db
-
+            words = stringBuilder.toString();
         }
+        return words;
+    }
+
+    private void saveID(){
+        int id = 0;
+        String dob = "";
+        String sex = "";
+        String name = "";
+        String image = "";
+
+        Visitor visitor = new Visitor(id,name,dob,sex,image);
+
     }
 }
 

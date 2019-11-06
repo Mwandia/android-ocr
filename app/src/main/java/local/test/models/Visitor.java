@@ -16,16 +16,14 @@ public class Visitor {
     private String name;
 
     @PrimaryKey
-    private int id;
+    private String id;
 
-    private String image; //path to image
     private String sex;
 
-    public Visitor(int id, String name, String birthdate, String sex, String image){
+    public Visitor(String id, String name, String birthdate, String sex){
         this.birthdate = birthdate;
         this.name = name;
         this.id = id;
-        this.image = image;
         this.sex = sex;
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy");
@@ -41,12 +39,8 @@ public class Visitor {
         return name;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
-    }
-
-    public String getImage() {
-        return image;
     }
 
     public String getEntry() {

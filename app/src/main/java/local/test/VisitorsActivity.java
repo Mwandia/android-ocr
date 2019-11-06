@@ -6,17 +6,23 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 import android.widget.Toast;
 
+import local.test.models.Visitor;
 import local.test.ui.views.SectionsPagerAdapter;
+import local.test.viewmodels.VisitorViewModel;
 
 public class VisitorsActivity extends AppCompatActivity {
 
     private static final String TAG = "VisitorsActivity";
+    public static final int     ADD_VISITOR_REQUEST = 1;
+
     private long                backPressedTime;
 
     @Override
@@ -62,6 +68,24 @@ public class VisitorsActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ADD_VISITOR_REQUEST && resultCode == RESULT_OK) {
+            String id = data.getStringExtra(CameraActivity.NEW_ID);
+            String name = data.getStringExtra(CameraActivity.NEW_NAME);
+            String dob = data.getStringExtra(CameraActivity.NEW_DOB);
+            String sex = data.getStringExtra(CameraActivity.NEW_SEX);
+
+            VisitorViewModel visitorViewModel = ViewModelProviders.of(this).get(VisitorViewModel.class);
+            Visitor visitor = new Visitor(id, name, dob, sex);
+            visitorViewModel.insert(visitor);
+
+            Toast.makeText(VisitorsActivity.this,"Added Visitor",Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
