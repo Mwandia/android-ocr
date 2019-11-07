@@ -1,15 +1,14 @@
-package local.test;
+package local.test.ui.views;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import local.test.models.Visitor;
+import local.test.R;
+import local.test.processors.TextProcessor;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,26 +36,25 @@ import java.time.format.DateTimeFormatter;
 
 public class CameraActivity extends AppCompatActivity {
 
-    public static final String  TAG = "CameraActivity";
     public static final String  DATA_PATH = Environment.getExternalStorageDirectory().toString();
-    public static final int     REQUEST_PERMISSION = 1;
+
+    public static final int     ADD_VISITOR_REQUEST = 1;
     public static final int     IMAGE_CAPTURE_REQUEST = 1;
     public static final int     LOAD_IMG_REQUEST = 1;
-    public static final int     ADD_VISITOR_REQUEST = 1;
+    public static final int     REQUEST_PERMISSION = 1;
 
     public static final String  NEW_ID = "local.test.NEW_ID";
+    public static final String  NEW_DOB = "local.test.NEW_DOB";
     public static final String  NEW_NAME = "local.test.NEW_NAME";
     public static final String  NEW_SEX = "local.test.NEW_SEX";
-    public static final String  NEW_DOB = "local.test.NEW_DOB";
 
-    private TextRecognizer      textRec;
-
+    private TextRecognizer      textRecogniser;
+    private Bitmap              readImage;
+    private Button              mButton;
     private CameraSource        mCameraSource;
     private SurfaceView         mCameraView;
-    private Button              mButton;
     private TextView            mCameraInstruct;
     private Uri                 outputDir;
-    private Bitmap              readImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +72,8 @@ public class CameraActivity extends AppCompatActivity {
             public void onClick(View v){
                 Frame image = takePicture();
                 String words = extractWords(image);
-                Intent intent = new Intent(CameraActivity.this, VisitorsActivity.class);
-                startActivity(intent);
+                saveID(words);
+
             }
         });
         mButton.setEnabled(true);
@@ -172,7 +170,7 @@ public class CameraActivity extends AppCompatActivity {
      */
     private String extractWords(Frame image){
         String words = "";
-        final SparseArray<TextBlock> items = textRec.detect(image);
+        final SparseArray<TextBlock> items = textRecogniser.detect(image);
         if(items.size() != 0){
             StringBuilder stringBuilder = new StringBuilder();
             for(int i=0; i<items.size(); i++) {
@@ -185,15 +183,26 @@ public class CameraActivity extends AppCompatActivity {
         return words;
     }
 
-    private void saveID(){
-        String id = "";
-        String dob = "";
-        String sex = "";
-        String name = "";
+    private void saveID(String words){
+        TextProcessor tp = new TextProcessor(words);
 
-        Visitor visitor = new Visitor(id,name,dob,sex);
+        String id = tp.getID();
+        String dob = tp.getBirthdate();
+        String sex = tp.getSex();
+        String name = tp.getNames();
+
+        Intent data = new Intent();
+        data.putExtra(NEW_ID,id);
+        data.putExtra(NEW_DOB,dob);
+        data.putExtra(NEW_SEX,sex);
+        data.putExtra(NEW_NAME,name);
+
+        setResult(RESULT_OK, data);
+        finish();
 
     }
 }
+
+
 
 

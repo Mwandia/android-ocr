@@ -1,11 +1,9 @@
 package local.test.ui.views;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -19,23 +17,18 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import local.test.CameraActivity;
 import local.test.R;
-import local.test.VisitorsActivity;
 import local.test.models.Visitor;
 import local.test.viewmodels.VisitorViewModel;
 
-import static android.app.Activity.RESULT_OK;
 
 public class CurrentVisitorFrag extends Fragment{
 
-    private static final String         TAG = "CurrentVisitorFrag";
-    public static final int             ADD_VISITOR_REQUEST = 1;
-    
+    protected static VisitorViewModel   mVisitorViewModel;
+
     private RecyclerView                recyclerView;
     private Adapter                     adapter;
     private RecyclerView.LayoutManager  layoutManager;
-    private VisitorViewModel            visitorViewModel;
     private FloatingActionButton        mButton;
 
     @Nullable
@@ -47,22 +40,6 @@ public class CurrentVisitorFrag extends Fragment{
         createRecyclerView(rootView,visitors);
 
         return rootView;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == ADD_VISITOR_REQUEST && resultCode == RESULT_OK) {
-            String id = data.getStringExtra(CameraActivity.NEW_ID);
-            String name = data.getStringExtra(CameraActivity.NEW_NAME);
-            String dob = data.getStringExtra(CameraActivity.NEW_DOB);
-            String sex = data.getStringExtra(CameraActivity.NEW_SEX);
-
-            VisitorViewModel visitorViewModel = ViewModelProviders.of(this).get(VisitorViewModel.class);
-            Visitor visitor = new Visitor(id, name, dob, sex);
-            visitorViewModel.insert(visitor);
-        }
     }
 
     private void createRecyclerView(View rootView, final ArrayList<Visitor> visitors){
@@ -82,8 +59,8 @@ public class CurrentVisitorFrag extends Fragment{
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
-        visitorViewModel = ViewModelProviders.of(this).get(VisitorViewModel.class);
-        visitorViewModel.getCurrVisitors().observe(this, new Observer<List<Visitor>>(){
+        mVisitorViewModel = ViewModelProviders.of(this).get(VisitorViewModel.class);
+        mVisitorViewModel.getCurrVisitors().observe(this, new Observer<List<Visitor>>(){
             @Override
             public void onChanged(List<Visitor> visitors){
                 //update RecyclerView

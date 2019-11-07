@@ -1,4 +1,4 @@
-package local.test;
+package local.test.ui.views;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,17 +6,21 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 import android.widget.Toast;
 
-import local.test.ui.views.SectionsPagerAdapter;
+import local.test.R;
+import local.test.models.Visitor;
 
 public class VisitorsActivity extends AppCompatActivity {
 
-    private static final String TAG = "VisitorsActivity";
+    public static final int     ADD_VISITOR_REQUEST = 1;
+    public static final String  TAG = "VisitorsActivity";
 
     private long                backPressedTime;
 
@@ -83,6 +87,25 @@ public class VisitorsActivity extends AppCompatActivity {
 
     private void openCamera(){
         Intent intent = new Intent(this, CameraActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent,ADD_VISITOR_REQUEST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ADD_VISITOR_REQUEST && resultCode == RESULT_OK) {
+            String id   = data.getStringExtra(CameraActivity.NEW_ID);
+            String name = data.getStringExtra(CameraActivity.NEW_NAME);
+            String dob  = data.getStringExtra(CameraActivity.NEW_DOB);
+            String sex  = data.getStringExtra(CameraActivity.NEW_SEX);
+
+            Visitor visitor = new Visitor(id, name, dob, sex);
+            CurrentVisitorFrag.mVisitorViewModel.insert(visitor);
+
+            Toast.makeText(this,"Added Visitor",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this,"Failed to add. Try again!",Toast.LENGTH_LONG).show();
+        }
     }
 }

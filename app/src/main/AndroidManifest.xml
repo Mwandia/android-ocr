@@ -22,17 +22,18 @@
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".VisitorsActivity"
+            android:name=".ui.views.VisitorsActivity"
             android:label="@string/title_activity_visitor"
             android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CameraActivity"
-                  android:parentActivityName=".VisitorsActivity"
+        <activity android:name=".ui.views.CameraActivity"
+                  android:parentActivityName=".ui.views.VisitorsActivity"
                   android:screenOrientation="landscape"/>
 
         <meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="ocr"/>

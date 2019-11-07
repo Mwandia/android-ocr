@@ -7,15 +7,15 @@ public class TextProcessor {
         this.details = details.split("\n");
     }
 
-    public int getID(){
-        int id = 0;
+    public String getID(){
+        String id = "";
 
         for(int i = 0; i<details.length; i++){
             String[] line = details[i].split(" ");
             for(int j = 0; j<line.length; j++) {
                 String word = line[j];
                 if (word.equals("NUMBER") && line[j+1].length() == 8) {
-                    id = Integer.parseInt(line[j+1]);
+                    id = line[j+1];
                     break;
                 }
             }
