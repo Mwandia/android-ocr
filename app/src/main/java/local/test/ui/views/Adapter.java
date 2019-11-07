@@ -17,8 +17,6 @@ import local.test.models.Visitor;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.VisitorHolder> {
 
-    private static final String TAG = "Adapter";
-
     private List<Visitor> mVisitors = new ArrayList<>();
     private OnItemClickListener mListener;
 
@@ -37,9 +35,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.VisitorHolder> {
 
         public VisitorHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
-            image = itemView.findViewById(R.id.thumb);
-            name = itemView.findViewById(R.id.supertext);
-            id = itemView.findViewById(R.id.subtext);
+            name = itemView.findViewById(R.id.name);
+            id = itemView.findViewById(R.id.entry);
 
             itemView.getContext();
 

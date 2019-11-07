@@ -12,7 +12,7 @@ public class Visitor {
 
     private String birthdate;
     private String entry;
-    private String exit;
+    //private String exit;
     private String name;
 
     @PrimaryKey
@@ -28,7 +28,7 @@ public class Visitor {
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm dd/MM/yyyy");
         this.entry = sdf.format(LocalDateTime.now());
-        this.exit = "";
+        //this.exit = "";
     }
 
     public String getBirthdate() {
@@ -47,13 +47,13 @@ public class Visitor {
         return entry;
     }
 
-    public String getExit() {
+    /*public String getExit() {
         return exit;
     }
 
     public void setExit(String time){
         this.exit = time;
-    }
+    }*/
 
     public String getSex() {
         return sex;
